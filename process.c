@@ -17,6 +17,16 @@ NTSTATUS TmCommOpenProcess(
     OBJECT_ATTRIBUTES objAttr;
     CLIENT_ID clientId;
 
+    // FIX: Block opening protected system processes (PID <= 4)
+    if (Request->ProcessId <= 4) {
+        return STATUS_ACCESS_DENIED;
+    }
+
+    // FIX: Disallow dangerous write, injection, and elevation access rights
+    if ((Request->DesiredAccess & TMCOMM_DISALLOWED_PROCESS_ACCESS) != 0) {
+        return STATUS_ACCESS_DENIED;
+    }
+
     clientId.UniqueProcess = (HANDLE)(ULONG_PTR)Request->ProcessId;
     clientId.UniqueThread = NULL;
     InitializeObjectAttributes(&objAttr, NULL, 0, NULL, NULL);
