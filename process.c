@@ -59,6 +59,11 @@ NTSTATUS TmCommTerminateProcess(
         return STATUS_INVALID_PARAMETER;
     }
 
+    // FIX: Prohibit terminating critical system and root processes
+    if (Request->ProcessId <= 4) {
+        return STATUS_ACCESS_DENIED;
+    }
+
     OBJECT_ATTRIBUTES objAttr;
     CLIENT_ID clientId;
 
