@@ -19,8 +19,18 @@ Driver TmComm.sys provides low-level system inspection and inter-process communi
 Fixed vulnerabilities in opensource driver TmComm.sys:
 
 - [x] (CVE-2020-24557)[https://nvd.nist.gov/vuln/detail/CVE-2020-24557]
+  - Insufficient Access Control: Device object opened with world-accessible DACL (fixed using `IoCreateDeviceSecure` with SDDL `D:P(A;;GA;;;SY)(A;;GA;;;BA)`)
+  - Arbitrary Process Handle Elevation: IOCTL 0x90004027 (fixed by blocking elevated write/injection access masks and system PIDs)
 - [x] (CVE-2019-18187)[https://nvd.nist.gov/vuln/detail/CVE-2019-18187]
+  - Arbitrary File Deletion / Manipulation: IOCTL 0x9000402B (fixed with file path validation and blocking critical system path deletion)
 - [x] (CVE-2020-24556)[https://nvd.nist.gov/vuln/detail/CVE-2020-24556]
+  - Arbitrary File Deletion via Symlink/Traversal: IOCTL 0x9000402B (fixed with directory traversal protection)
+
+Fixed no publish vulnerabilities and bugs which contributors to this project found:
+
+- Arbitrary kernel code execution via user-mode callback in `IoControlRegisterUnloadNotify` ([view code](trueapi.c))
+- Arbitrary process termination in `IoControlTerminateProcess` ([view code](process.c))
+- Missing device deletion on symbolic link creation failure ([view code](main.c))
 
 Authors:
 
