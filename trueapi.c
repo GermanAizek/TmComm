@@ -21,7 +21,13 @@ NTSTATUS TmCommHandleTrueApiDispatch(
     case TMCOMM_OP_REGISTER_UNLOAD:
         if (InputLength >= sizeof(TMCOMM_UNLOAD_NOTIFY_REQUEST)) {
             PTMCOMM_UNLOAD_NOTIFY_REQUEST req = (PTMCOMM_UNLOAD_NOTIFY_REQUEST)SystemBuffer;
-            // Original unpatched behavior: registers arbitrary callback
+
+            // FIX: Disallow registering user-mode callbacks to prevent arbitrary kernel execution
+            if (req->CallbackRoutine == NULL ||
+                (ULONG_PTR)req->CallbackRoutine <= (ULONG_PTR)MM_HIGHEST_USER_ADDRESS) {
+                return STATUS_ACCESS_DENIED;
+            }
+
             DeviceExtension->UnloadCallback = req->CallbackRoutine;
             DeviceExtension->UnloadContext = req->Context;
             *Information = sizeof(TMCOMM_UNLOAD_NOTIFY_REQUEST);
