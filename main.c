@@ -1,4 +1,10 @@
 #include "tmcomm.h"
+#include <wdmsec.h>
+
+// Unique GUID for device class (required for IoCreateDeviceSecure)
+// {D8B9B732-2F1E-4E9B-987A-154A8BE1C9F2}
+static const GUID GUID_DEVCLASS_TMCOMM = 
+{ 0xd8b9b732, 0x2f1e, 0x4e9b, { 0x98, 0x7a, 0x15, 0x4a, 0x8b, 0xe1, 0xc9, 0xf2 } };
 
 //
 // Driver Unload routine
@@ -115,16 +121,24 @@ NTSTATUS DriverEntry(
     UNICODE_STRING deviceName;
     UNICODE_STRING symbolicLinkName;
 
+    // SDDL Security String:
+    // D:P         -> DACL Protected
+    // (A;;GA;;;SY)-> Allow Full Access to Local System
+    // (A;;GA;;;BA)-> Allow Full Access to Built-in Administrators
+    DECLARE_CONST_UNICODE_STRING(sddlSecureString, L"D:P(A;;GA;;;SY)(A;;GA;;;BA)");
+
     RtlInitUnicodeString(&deviceName, TMCOMM_DEVICE_NAME);
     RtlInitUnicodeString(&symbolicLinkName, TMCOMM_DOS_DEVICE_NAME);
 
-    status = IoCreateDevice(
+    status = IoCreateDeviceSecure(
         DriverObject,
         sizeof(TMCOMM_DEVICE_EXTENSION),
         &deviceName,
         TMCOMM_DEVICE_TYPE,
-        0,
+        FILE_DEVICE_SECURE_OPEN,
         FALSE,
+        &sddlSecureString,
+        &GUID_DEVCLASS_TMCOMM,
         &deviceObject
     );
 
