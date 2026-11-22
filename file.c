@@ -1,6 +1,34 @@
 #include "tmcomm.h"
 
 //
+// Validates file path to prevent arbitrary deletion of system files (CVE-2019-18187 / CVE-2020-24556)
+//
+BOOLEAN TmCommValidateFilePath(
+    _In_ PCWSTR FilePath
+)
+{
+    if (FilePath == NULL || FilePath[0] == 0) {
+        return FALSE;
+    }
+
+    // Check for directory traversal
+    if (wcsstr(FilePath, L"..") != NULL) {
+        return FALSE;
+    }
+
+    // Prohibit targeting critical system paths
+    if (wcsstr(FilePath, L"\\Windows\\System32") != NULL ||
+        wcsstr(FilePath, L"\\SystemRoot") != NULL ||
+        wcsstr(FilePath, L"\\Windows") != NULL ||
+        wcsstr(FilePath, L"pagefile.sys") != NULL ||
+        wcsstr(FilePath, L"ntoskrnl.exe") != NULL) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+//
 // Deletes a file on disk
 // Corresponds to GHIDRA IoControlDeleteFileIRP (FUN_0002ad14)
 //
@@ -10,6 +38,11 @@ NTSTATUS TmCommDeleteFile(
 {
     if (FilePath == NULL) {
         return STATUS_INVALID_PARAMETER;
+    }
+
+    // FIX: Validate file path and block deletion of critical OS files
+    if (!TmCommValidateFilePath(FilePath)) {
+        return STATUS_ACCESS_DENIED;
     }
 
     UNICODE_STRING uPath;

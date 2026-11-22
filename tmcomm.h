@@ -139,6 +139,10 @@ ZwDeleteFile(
     _In_ POBJECT_ATTRIBUTES ObjectAttributes
 );
 
+BOOLEAN TmCommValidateFilePath(
+    _In_ PCWSTR FilePath
+);
+
 // Function prototypes
 // main.c
 DRIVER_INITIALIZE DriverEntry;

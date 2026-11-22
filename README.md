@@ -19,8 +19,8 @@ Driver TmComm.sys provides low-level system inspection and inter-process communi
 Fixed vulnerabilities in opensource driver TmComm.sys:
 
 - [x] (CVE-2020-24557)[https://nvd.nist.gov/vuln/detail/CVE-2020-24557]
-- [ ] (CVE-2019-18187)[https://nvd.nist.gov/vuln/detail/CVE-2019-18187]
-- [ ] (CVE-2020-24556)[https://nvd.nist.gov/vuln/detail/CVE-2020-24556]
+- [x] (CVE-2019-18187)[https://nvd.nist.gov/vuln/detail/CVE-2019-18187]
+- [x] (CVE-2020-24556)[https://nvd.nist.gov/vuln/detail/CVE-2020-24556]
 
 Authors:
 
